@@ -1,0 +1,631 @@
+<Window x:Class="USBAuthGuard.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="USBAuthGuard — Security Dashboard"
+        Height="700" Width="1000"
+        MinHeight="560" MinWidth="760"
+        WindowStartupLocation="CenterScreen"
+        Background="#0F1117"
+        Foreground="White"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- ── Color Palette ── -->
+        <SolidColorBrush x:Key="BgPrimary"    Color="#0F1117"/>
+        <SolidColorBrush x:Key="BgSidebar"    Color="#13152A"/>
+        <SolidColorBrush x:Key="Surface"      Color="#1A1D2E"/>
+        <SolidColorBrush x:Key="SurfaceAlt"   Color="#242740"/>
+        <SolidColorBrush x:Key="SurfaceHover" Color="#2D3154"/>
+        <SolidColorBrush x:Key="Accent"       Color="#6366F1"/>
+        <SolidColorBrush x:Key="AccentHover"  Color="#818CF8"/>
+        <SolidColorBrush x:Key="AccentDim"    Color="#3730A3"/>
+        <SolidColorBrush x:Key="Success"      Color="#22C55E"/>
+        <SolidColorBrush x:Key="Danger"       Color="#EF4444"/>
+        <SolidColorBrush x:Key="DangerHover"  Color="#F87171"/>
+        <SolidColorBrush x:Key="Warning"      Color="#F59E0B"/>
+        <SolidColorBrush x:Key="TextPrimary"  Color="#F1F5F9"/>
+        <SolidColorBrush x:Key="TextMuted"    Color="#6B7280"/>
+        <SolidColorBrush x:Key="TextDim"      Color="#9CA3AF"/>
+        <SolidColorBrush x:Key="BorderColor"  Color="#2D3154"/>
+
+        <!-- ── Card ── -->
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background"      Value="{StaticResource Surface}"/>
+            <Setter Property="CornerRadius"    Value="12"/>
+            <Setter Property="Padding"         Value="20"/>
+            <Setter Property="BorderBrush"     Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- ── Nav Button (inactive) ── -->
+        <Style x:Key="NavBtn" TargetType="Button">
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="Foreground"      Value="{StaticResource TextDim}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"         Value="14,10"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}"
+                                Margin="8,2">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background"
+                                        Value="{StaticResource SurfaceHover}"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Nav Button (active) ── -->
+        <Style x:Key="NavBtnActive" TargetType="Button" BasedOn="{StaticResource NavBtn}">
+            <Setter Property="Background" Value="{StaticResource AccentDim}"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <!-- ── Primary Button ── -->
+        <Style x:Key="PrimaryBtn" TargetType="Button">
+            <Setter Property="Background"      Value="{StaticResource Accent}"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"         Value="16,9"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background"
+                                        Value="{StaticResource AccentHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Danger Button ── -->
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background" Value="{StaticResource Danger}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DangerHover}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ── Ghost Button ── -->
+        <Style x:Key="GhostBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background" Value="{StaticResource SurfaceAlt}"/>
+        </Style>
+
+        <!-- ── TextBox ── -->
+        <Style x:Key="DarkTextBox" TargetType="TextBox">
+            <Setter Property="Background"      Value="{StaticResource SurfaceAlt}"/>
+            <Setter Property="Foreground"      Value="{StaticResource TextPrimary}"/>
+            <Setter Property="BorderBrush"     Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding"         Value="10,7"/>
+            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="CaretBrush"      Value="White"/>
+            <Setter Property="SelectionBrush"  Value="{StaticResource Accent}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── CheckBox ── -->
+        <Style x:Key="DarkCheckBox" TargetType="CheckBox">
+            <Setter Property="Foreground"  Value="{StaticResource TextPrimary}"/>
+            <Setter Property="FontSize"    Value="13"/>
+            <Setter Property="Margin"      Value="0,6"/>
+            <Setter Property="Cursor"      Value="Hand"/>
+        </Style>
+
+        <!-- ── Log Item ── -->
+        <Style x:Key="LogText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="Foreground" Value="#A1A8C3"/>
+            <Setter Property="Padding"    Value="0,2"/>
+        </Style>
+
+        <!-- ── ListBox ── -->
+        <Style x:Key="DarkListBox" TargetType="ListBox">
+            <Setter Property="Background"  Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+        <Style x:Key="DarkListItem" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="Padding"    Value="6,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}" Margin="0,1">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Root" Property="Background"
+                                        Value="{StaticResource AccentDim}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background"
+                                        Value="{StaticResource SurfaceHover}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Section Label ── -->
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+            <Setter Property="Margin"     Value="14,12,14,4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ════════════════════════════════════════
+             SIDEBAR
+             ════════════════════════════════════════ -->
+        <Border Grid.Column="0" Background="{StaticResource BgSidebar}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top">
+                    <!-- Logo -->
+                    <StackPanel Margin="20,24,20,16" Orientation="Horizontal">
+                        <TextBlock Text="🔐" FontSize="30" VerticalAlignment="Center"/>
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock FontSize="15" FontWeight="Bold" Foreground="White">
+                                USB<Run Foreground="{StaticResource Accent}">Auth</Run>Guard
+                            </TextBlock>
+                            <TextBlock Text="Security Platform" FontSize="10"
+                                       Foreground="{StaticResource TextMuted}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Separator Background="{StaticResource BorderColor}" Margin="14,0,14,8"/>
+
+                    <!-- Nav items -->
+                    <TextBlock Text="NAVIGATION" Style="{StaticResource SectionLabel}"/>
+
+                    <Button x:Name="BtnNavDashboard" Content="📊  Dashboard"
+                            Style="{StaticResource NavBtnActive}"
+                            Click="BtnNav_Click" Tag="Dashboard"/>
+                    <Button x:Name="BtnNavDevices" Content="💾  Trusted Devices"
+                            Style="{StaticResource NavBtn}"
+                            Click="BtnNav_Click" Tag="Devices"/>
+                    <Button x:Name="BtnNavVault" Content="🗄️  Vault"
+                            Style="{StaticResource NavBtn}"
+                            Click="BtnNav_Click" Tag="Vault"/>
+                    <Button x:Name="BtnNavLogs" Content="📋  Security Logs"
+                            Style="{StaticResource NavBtn}"
+                            Click="BtnNav_Click" Tag="Logs"/>
+                    <Button x:Name="BtnNavSettings" Content="⚙️  Settings"
+                            Style="{StaticResource NavBtn}"
+                            Click="BtnNav_Click" Tag="Settings"/>
+
+                    <Separator Background="{StaticResource BorderColor}" Margin="14,8,14,8"/>
+
+                    <TextBlock Text="TOOLS" Style="{StaticResource SectionLabel}"/>
+                    <Button x:Name="BtnNavAdmin" Content="🛡️  Admin Panel"
+                            Style="{StaticResource NavBtn}"
+                            Click="BtnNav_Click" Tag="Admin"/>
+                </StackPanel>
+
+                <!-- Bottom: Lock button + version -->
+                <StackPanel DockPanel.Dock="Bottom" Margin="14,0,14,20">
+                    <Button Content="🔒  Lock Now" Style="{StaticResource DangerBtn}"
+                            Margin="0,0,0,12" Click="BtnLockNow_Click"/>
+                    <TextBlock x:Name="TxtSidebarState"
+                               Text="● Locked" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource Danger}"
+                               HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                    <TextBlock Text="v1.0.0 — USBAuthGuard"
+                               Foreground="{StaticResource TextMuted}"
+                               FontSize="10" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ════════════════════════════════════════
+             CONTENT AREA
+             ════════════════════════════════════════ -->
+        <Grid Grid.Column="1" Background="{StaticResource BgPrimary}">
+
+            <!-- ── DASHBOARD PAGE ── -->
+            <ScrollViewer x:Name="PageDashboard" VerticalScrollBarVisibility="Auto"
+                          Padding="28,24">
+                <StackPanel>
+                    <TextBlock Text="Security Dashboard" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="TxtDashSubtitle"
+                               Text="All systems nominal."
+                               FontSize="13" Foreground="{StaticResource TextMuted}"
+                               Margin="0,0,0,20"/>
+
+                    <!-- Hero status card -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="WORKSTATION STATUS" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextMuted}"
+                                            Margin="0,0,0,10"/>
+                                <TextBlock x:Name="TxtStatus" Text="🔒  LOCKED"
+                                           FontSize="38" FontWeight="Bold"
+                                           Foreground="{StaticResource Danger}"/>
+                                <TextBlock x:Name="TxtDeviceInfo"
+                                           Text="No trusted USB detected"
+                                           FontSize="13" Foreground="{StaticResource TextMuted}"
+                                           Margin="0,10,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <Border Background="{StaticResource SurfaceAlt}"
+                                        CornerRadius="50" Width="80" Height="80"
+                                        HorizontalAlignment="Center">
+                                    <TextBlock x:Name="TxtStatusIcon" Text="🔒"
+                                               FontSize="36" HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Stats row -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,8,0">
+                            <StackPanel>
+                                <TextBlock Text="TRUSTED" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextMuted}" />
+                                <TextBlock x:Name="TxtStatTrusted" Text="0" FontSize="30"
+                                           FontWeight="Bold" Foreground="{StaticResource Accent}"
+                                           Margin="0,6,0,0"/>
+                                <TextBlock Text="devices" FontSize="11"
+                                           Foreground="{StaticResource TextMuted}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Style="{StaticResource Card}" Margin="8,0">
+                            <StackPanel>
+                                <TextBlock Text="CONNECTED" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextMuted}" />
+                                <TextBlock x:Name="TxtStatConnected" Text="0" FontSize="30"
+                                           FontWeight="Bold" Foreground="{StaticResource Warning}"
+                                           Margin="0,6,0,0"/>
+                                <TextBlock Text="USB drives" FontSize="11"
+                                           Foreground="{StaticResource TextMuted}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Style="{StaticResource Card}" Margin="8,0">
+                            <StackPanel>
+                                <TextBlock Text="LOG ENTRIES" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextMuted}" />
+                                <TextBlock x:Name="TxtStatLogs" Text="0" FontSize="30"
+                                           FontWeight="Bold" Foreground="{StaticResource Success}"
+                                           Margin="0,6,0,0"/>
+                                <TextBlock Text="events" FontSize="11"
+                                           Foreground="{StaticResource TextMuted}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="3" Style="{StaticResource Card}" Margin="8,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="VAULT" FontSize="10" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextMuted}" />
+                                <TextBlock x:Name="TxtStatVault" Text="OFF" FontSize="30"
+                                           FontWeight="Bold" Foreground="{StaticResource TextMuted}"
+                                           Margin="0,6,0,0"/>
+                                <TextBlock Text="encryption" FontSize="11"
+                                           Foreground="{StaticResource TextMuted}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Live feed -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock Text="Live Event Feed" FontSize="14"
+                                           FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"/>
+                                <Button Content="Refresh" HorizontalAlignment="Right"
+                                        Style="{StaticResource GhostBtn}" Padding="10,5"
+                                        FontSize="11" Click="BtnRefreshDashboard_Click"/>
+                            </Grid>
+                            <ListBox x:Name="LstDashLogs" Style="{StaticResource DarkListBox}"
+                                     MaxHeight="200" ItemContainerStyle="{StaticResource DarkListItem}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Style="{StaticResource LogText}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ── DEVICES PAGE ── -->
+            <ScrollViewer x:Name="PageDevices" Visibility="Collapsed"
+                          VerticalScrollBarVisibility="Auto" Padding="28,24">
+                <StackPanel>
+                    <TextBlock Text="Trusted Devices" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,6"/>
+                    <TextBlock Text="Manage which USB devices unlock your workstation."
+                               FontSize="13" Foreground="{StaticResource TextMuted}" Margin="0,0,0,20"/>
+
+                    <!-- Connected devices -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock Text="Currently Connected USB Devices"
+                                           FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimary}"/>
+                                <Button Content="🔄 Scan" HorizontalAlignment="Right"
+                                        Style="{StaticResource GhostBtn}" Padding="10,5" FontSize="11"
+                                        Click="BtnScanDevices_Click"/>
+                            </Grid>
+                            <Border Background="{StaticResource SurfaceAlt}" CornerRadius="8"
+                                    Padding="4" Margin="0,0,0,12">
+                                <ListBox x:Name="LstConnectedDevices" MinHeight="80" MaxHeight="180"
+                                         Style="{StaticResource DarkListBox}"
+                                         ItemContainerStyle="{StaticResource DarkListItem}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="💾 " FontSize="14"/>
+                                                <TextBlock Text="{Binding}" FontSize="13"
+                                                           Foreground="{StaticResource TextPrimary}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                            <Button Content="➕  Trust Selected Device" Style="{StaticResource PrimaryBtn}"
+                                    HorizontalAlignment="Left" Click="BtnTrustDevice_Click"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Trusted list -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Trusted Device Keys" FontSize="14"
+                                       FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"
+                                       Margin="0,0,0,12"/>
+                            <Border Background="{StaticResource SurfaceAlt}" CornerRadius="8"
+                                    Padding="4" Margin="0,0,0,12">
+                                <ListBox x:Name="LstTrustedKeys" MinHeight="80" MaxHeight="200"
+                                         Style="{StaticResource DarkListBox}"
+                                         ItemContainerStyle="{StaticResource DarkListItem}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="✅ " FontSize="12"
+                                                           VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding}" FontFamily="Consolas"
+                                                           FontSize="12" Foreground="#A1A8C3"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                            <Button Content="🗑️  Remove Selected" Style="{StaticResource DangerBtn}"
+                                    HorizontalAlignment="Left" Click="BtnRemoveTrustedKey_Click"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ── VAULT PAGE ── -->
+            <ScrollViewer x:Name="PageVault" Visibility="Collapsed"
+                          VerticalScrollBarVisibility="Auto" Padding="28,24">
+                <StackPanel>
+                    <TextBlock Text="AES-256 Vault" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,6"/>
+                    <TextBlock Text="Files in your vault folder are encrypted when your USB is removed."
+                               FontSize="13" Foreground="{StaticResource TextMuted}" Margin="0,0,0,20"/>
+
+                    <!-- Vault folder -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Vault Folder" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}" Margin="0,0,0,8"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="12"
+                                       Foreground="{StaticResource TextMuted}" Margin="0,0,0,14">
+                                Select a folder to protect. Files are AES-256-CBC encrypted with a key derived from your USB device's serial number via PBKDF2 (100,000 iterations). Fully reversible.
+                            </TextBlock>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Background="{StaticResource SurfaceAlt}" CornerRadius="8"
+                                        Padding="12,9" Margin="0,0,10,0">
+                                    <TextBlock x:Name="TxtVaultPath" Text="No folder selected"
+                                               Foreground="{StaticResource TextMuted}"
+                                               FontFamily="Consolas" FontSize="12"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </Border>
+                                <Button Grid.Column="1" Content="📂  Browse…"
+                                        Style="{StaticResource PrimaryBtn}"
+                                        Click="BtnBrowseVault_Click"/>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="🔒  Lock Vault Now"
+                                        Style="{StaticResource DangerBtn}" Margin="0,0,10,0"
+                                        Click="BtnLockVault_Click"/>
+                                <Button Content="🔓  Unlock Vault Now"
+                                        Style="{StaticResource PrimaryBtn}"
+                                        Click="BtnUnlockVault_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Vault status -->
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="Vault Status" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}" Margin="0,0,0,12"/>
+                            <Border Background="{StaticResource SurfaceAlt}" CornerRadius="8"
+                                    Padding="14,12">
+                                <TextBlock x:Name="TxtVaultStatus"
+                                           Text="Vault is not configured. Select a folder above."
+                                           FontSize="13" Foreground="{StaticResource TextMuted}"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ── LOGS PAGE ── -->
+            <DockPanel x:Name="PageLogs" Visibility="Collapsed" LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top" Margin="28,24,28,12">
+                    <TextBlock Text="Security Logs" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,6"/>
+                    <TextBlock Text="Full audit trail of all USB and security events."
+                               FontSize="13" Foreground="{StaticResource TextMuted}"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="28,10,28,20">
+                    <Button Content="🔄  Refresh" Style="{StaticResource PrimaryBtn}"
+                            Margin="0,0,10,0" Click="BtnRefreshLogs_Click"/>
+                    <Button Content="🗑️  Clear Logs" Style="{StaticResource DangerBtn}"
+                            Margin="0,0,10,0" Click="BtnClearLogs_Click"/>
+                    <Button Content="📂  Open Log File" Style="{StaticResource GhostBtn}"
+                            Click="BtnOpenLogFile_Click"/>
+                </StackPanel>
+                <Border Style="{StaticResource Card}" Margin="28,0" DockPanel.Dock="Top">
+                    <ListBox x:Name="LstAllLogs" Style="{StaticResource DarkListBox}"
+                             ItemContainerStyle="{StaticResource DarkListItem}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Style="{StaticResource LogText}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+            </DockPanel>
+
+            <!-- ── SETTINGS PAGE ── -->
+            <ScrollViewer x:Name="PageSettings" Visibility="Collapsed"
+                          VerticalScrollBarVisibility="Auto" Padding="28,24">
+                <StackPanel>
+                    <TextBlock Text="Settings" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimary}" Margin="0,0,0,6"/>
+                    <TextBlock Text="Configure lock behavior, startup, and security policies."
+                               FontSize="13" Foreground="{StaticResource TextMuted}" Margin="0,0,0,20"/>
+
+                    <!-- Lock behavior -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Lock Behavior" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
+
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Lock delay after USB removal (seconds):"
+                                           Foreground="{StaticResource TextPrimary}"
+                                           FontSize="13" VerticalAlignment="Center"/>
+                                <TextBox x:Name="TxtLockDelay" Grid.Column="1"
+                                         Style="{StaticResource DarkTextBox}" Text="5"/>
+                            </Grid>
+
+                            <CheckBox x:Name="ChkLockOnRemoval"
+                                      Content="Lock workstation when trusted USB is removed"
+                                      Style="{StaticResource DarkCheckBox}" IsChecked="True"/>
+                            <CheckBox x:Name="ChkLockOnUntrusted"
+                                      Content="Lock workstation when an untrusted USB is inserted"
+                                      Style="{StaticResource DarkCheckBox}"/>
+                            <CheckBox x:Name="ChkWarnUntrusted"
+                                      Content="Warn (log) when an untrusted USB is inserted"
+                                      Style="{StaticResource DarkCheckBox}" IsChecked="True"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Startup -->
+                    <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="System Startup" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}" Margin="0,0,0,16"/>
+                            <CheckBox x:Name="ChkStartWithWindows"
+                                      Content="Start USBAuthGuard automatically with Windows (via registry Run key)"
+                                      Style="{StaticResource DarkCheckBox}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Save -->
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="💾  Save Settings" Style="{StaticResource PrimaryBtn}"
+                                Margin="0,0,10,0" Click="BtnSaveSettings_Click"/>
+                        <Button Content="↩  Reset Defaults" Style="{StaticResource GhostBtn}"
+                                Click="BtnResetSettings_Click"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="TxtSettingsSaved" Text=""
+                               Foreground="{StaticResource Success}" FontSize="13"
+                               Margin="0,12,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+</Window>

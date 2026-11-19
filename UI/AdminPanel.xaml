@@ -1,0 +1,126 @@
+<Window x:Class="USBAuthGuard.UI.AdminPanel"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="USBAuthGuard — Admin Panel"
+        Height="520" Width="640"
+        WindowStartupLocation="CenterOwner"
+        Background="#0F1117"
+        Foreground="White"
+        FontFamily="Segoe UI"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="Surface"    Color="#1A1D2E"/>
+        <SolidColorBrush x:Key="SurfaceAlt" Color="#242740"/>
+        <SolidColorBrush x:Key="Accent"     Color="#6366F1"/>
+        <SolidColorBrush x:Key="Danger"     Color="#EF4444"/>
+        <SolidColorBrush x:Key="TextMuted"  Color="#6B7280"/>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background"      Value="{StaticResource Surface}"/>
+            <Setter Property="CornerRadius"    Value="12"/>
+            <Setter Property="Padding"         Value="20"/>
+            <Setter Property="BorderBrush"     Value="#2D3154"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin"          Value="0,0,0,16"/>
+        </Style>
+
+        <Style x:Key="Btn" TargetType="Button">
+            <Setter Property="Background"      Value="{StaticResource Accent}"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"         Value="14,7"/>
+            <Setter Property="FontSize"        Value="12"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer Padding="24" VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <TextBlock Text="Admin Panel" FontSize="22" FontWeight="Bold"
+                       Foreground="White" Margin="0,0,0,20"/>
+
+            <!-- Quick Actions -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Quick Actions" FontSize="13" FontWeight="SemiBold"
+                               Foreground="White" Margin="0,0,0,12"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="BtnLock"       Content="🔒 Lock Now"         Style="{StaticResource Btn}"
+                                Margin="0,0,8,0" Click="BtnLock_Click"/>
+                        <Button x:Name="BtnClearLogs"  Content="🗑️ Clear Logs"        Style="{StaticResource Btn}"
+                                Background="{StaticResource Danger}" Margin="0,0,8,0"
+                                Click="BtnClearLogs_Click"/>
+                        <Button x:Name="BtnReloadCfg"  Content="🔄 Reload Config"     Style="{StaticResource Btn}"
+                                Background="#374151" Click="BtnReloadCfg_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Session State -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Current Session" FontSize="13" FontWeight="SemiBold"
+                               Foreground="White" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="26"/>
+                            <RowDefinition Height="26"/>
+                            <RowDefinition Height="26"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Security State:"
+                                   Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtAdminState" Grid.Row="0" Grid.Column="1"
+                                   Text="—" Foreground="White" VerticalAlignment="Center"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Active Device:"
+                                   Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtAdminDevice" Grid.Row="1" Grid.Column="1"
+                                   Text="None" Foreground="White" VerticalAlignment="Center"
+                                   FontFamily="Consolas" FontSize="12"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Trusted Count:"
+                                   Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtAdminTrusted" Grid.Row="2" Grid.Column="1"
+                                   Text="0" Foreground="White" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Startup -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Windows Startup" FontSize="13" FontWeight="SemiBold"
+                               Foreground="White" Margin="0,0,0,12"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="✅ Enable Startup"  Style="{StaticResource Btn}"
+                                Margin="0,0,8,0" Click="BtnEnableStartup_Click"/>
+                        <Button Content="❌ Disable Startup" Style="{StaticResource Btn}"
+                                Background="{StaticResource Danger}" Click="BtnDisableStartup_Click"/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtStartupStatus" Text=""
+                               Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Close -->
+            <Button Content="Close" Style="{StaticResource Btn}" HorizontalAlignment="Right"
+                    Background="#374151" Click="BtnClose_Click"/>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

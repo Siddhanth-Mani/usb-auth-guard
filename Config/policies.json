@@ -1,0 +1,7 @@
+{
+  "lockOnTrustedRemoval": true,
+  "warnOnUntrustedInsert": true,
+  "vaultFolder": "",
+  "enableEventLog": true,
+  "startWithWindows": false
+}

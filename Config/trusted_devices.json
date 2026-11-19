@@ -1,0 +1,5 @@
+{
+  "trustedDevices": [],
+  "lockDelaySeconds": 5,
+  "lockOnUntrustedInsert": false
+}
